@@ -3,7 +3,7 @@
 namespace Krixon\Schedule\Test\TemporalExpression;
 
 use Krixon\DateTime\DateTime;
-use Krixon\Schedule\Days;
+use Krixon\Schedule\Day;
 use Krixon\Schedule\TemporalExpression\DayInMonth;
 
 /**
@@ -17,12 +17,12 @@ class DayInMonthTest extends TemporalExpressionTestCase
      * @dataProvider includedDateProvider
      * @covers ::includesDate
      *
-     * @param int    $day
+     * @param Day    $day
      * @param int    $occurrence
      * @param string $date
      * @param bool   $expected
      */
-    public function testIncludesDate(int $day, int $occurrence, string $date, bool $expected)
+    public function testIncludesDate(Day $day, int $occurrence, string $date, bool $expected)
     {
         $date       = DateTime::fromFormat('Y-m-d', $date, new \DateTimeZone('Europe/London'));
         $expression = new DayInMonth($day, $occurrence);
@@ -34,12 +34,12 @@ class DayInMonthTest extends TemporalExpressionTestCase
     public function includedDateProvider() : array
     {
         return [
-            [Days::MON, 1, '2015-01-05', true],
-            [Days::WED, -1, '2015-07-29', true],
-            [Days::WED, -2, '2015-07-22', true],
-            [Days::WED, -3, '2015-07-15', true],
-            [Days::MON, 1, '2015-01-06', false],
-            [Days::WED, -1, '2015-07-30', false],
+            [Day::mon(), 1, '2015-01-05', true],
+            [Day::wed(), -1, '2015-07-29', true],
+            [Day::wed(), -2, '2015-07-22', true],
+            [Day::wed(), -3, '2015-07-15', true],
+            [Day::mon(), 1, '2015-01-06', false],
+            [Day::wed(), -1, '2015-07-30', false],
         ];
     }
     
@@ -48,12 +48,12 @@ class DayInMonthTest extends TemporalExpressionTestCase
      * @dataProvider firstOccurrenceAfterProvider
      * @covers ::firstOccurrenceAfter
      *
-     * @param int    $day
+     * @param Day    $day
      * @param int    $occurrence
      * @param string $date
      * @param string $expected
      */
-    public function testFirstOccurrenceAfter(int $day, int $occurrence, string $date, string $expected)
+    public function testFirstOccurrenceAfter(Day $day, int $occurrence, string $date, string $expected)
     {
         $timezone   = new \DateTimeZone('Europe/London');
         $date       = DateTime::fromFormat('Y-m-d', $date, $timezone);
@@ -67,19 +67,19 @@ class DayInMonthTest extends TemporalExpressionTestCase
     public function firstOccurrenceAfterProvider() : array
     {
         return [
-            '1st Mon after 2015-01-01 is 2015-01-05' => [Days::MON, 1, '2015-01-01', '2015-01-05'],
-            '2nd Mon after 2015-01-01 is 2015-01-12' => [Days::MON, 2, '2015-01-01', '2015-01-12'],
-            '3rd Mon after 2015-01-01 is 2015-01-19' => [Days::MON, 3, '2015-01-01', '2015-01-19'],
-            '4th Mon after 2015-01-01 is 2015-01-26' => [Days::MON, 4, '2015-01-01', '2015-01-26'],
-            '1st Fri after 2015-01-02 is 2015-01-02' => [Days::FRI, 1, '2015-01-02', '2015-01-02'],
-            [Days::WED, -1, '2015-07-01', '2015-07-29'],
-            [Days::WED, -2, '2015-07-01', '2015-07-22'],
-            [Days::WED, -3, '2015-07-01', '2015-07-15'],
-            [Days::WED, -4, '2015-07-01', '2015-07-08'],
-            [Days::WED, -1, '2015-07-05', '2015-07-29'],
-            [Days::WED, -1, '2015-07-28', '2015-07-29'],
-            [Days::WED, -1, '2015-07-29', '2015-07-29'],
-            [Days::WED, -1, '2015-07-30', '2015-08-26'],
+            '1st mon() after 2015-01-01 is 2015-01-05' => [Day::mon(), 1, '2015-01-01', '2015-01-05'],
+            '2nd mon() after 2015-01-01 is 2015-01-12' => [Day::mon(), 2, '2015-01-01', '2015-01-12'],
+            '3rd mon() after 2015-01-01 is 2015-01-19' => [Day::mon(), 3, '2015-01-01', '2015-01-19'],
+            '4th mon() after 2015-01-01 is 2015-01-26' => [Day::mon(), 4, '2015-01-01', '2015-01-26'],
+            '1st fri() after 2015-01-02 is 2015-01-02' => [Day::fri(), 1, '2015-01-02', '2015-01-02'],
+            [Day::wed(), -1, '2015-07-01', '2015-07-29'],
+            [Day::wed(), -2, '2015-07-01', '2015-07-22'],
+            [Day::wed(), -3, '2015-07-01', '2015-07-15'],
+            [Day::wed(), -4, '2015-07-01', '2015-07-08'],
+            [Day::wed(), -1, '2015-07-05', '2015-07-29'],
+            [Day::wed(), -1, '2015-07-28', '2015-07-29'],
+            [Day::wed(), -1, '2015-07-29', '2015-07-29'],
+            [Day::wed(), -1, '2015-07-30', '2015-08-26'],
         ];
     }
     
@@ -88,12 +88,12 @@ class DayInMonthTest extends TemporalExpressionTestCase
      * @dataProvider occurrencesOnOrAfterProvider
      * @covers ::occurrencesOnOrAfter
      *
-     * @param int    $day
+     * @param Day    $day
      * @param int    $occurrence
      * @param string $startDate
      * @param array  $expected
      */
-    public function testOccurrencesOnOrAfter(int $day, int $occurrence, string $startDate, array $expected)
+    public function testOccurrencesOnOrAfter(Day $day, int $occurrence, string $startDate, array $expected)
     {
         $expression = new DayInMonth($day, $occurrence);
         
@@ -105,7 +105,7 @@ class DayInMonthTest extends TemporalExpressionTestCase
     {
         return [
             [
-                Days::MON,
+                Day::mon(),
                 1,
                 '2015-01-01',
                 [

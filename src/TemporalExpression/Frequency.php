@@ -11,8 +11,6 @@ use Krixon\Schedule\IntervalPrecision;
  */
 class Frequency extends TemporalExpression
 {
-    protected $sequence = 100;
-    
     /**
      * @var DateTime
      */
@@ -47,9 +45,33 @@ class Frequency extends TemporalExpression
         $this->start             = $start;
         $this->interval          = $interval;
         $this->intervalPrecision = $intervalPrecision;
-        $this->sequence         += $intervalPrecision();
+        $this->sequence          = 100 + $intervalPrecision();
         
         parent::__construct();
+    }
+    
+    
+    /**
+     * @inheritdoc
+     */
+    public function __toString() : string
+    {
+        return sprintf(
+            '%s: start = %s, frequency = %d %s',
+            parent::__toString(),
+            $this->start,
+            $this->interval,
+            $this->intervalPrecision
+        );
+    }
+    
+    
+    /**
+     * @inheritdoc
+     */
+    public function accept(TemporalExpressionVisitor $visitor)
+    {
+        $visitor->visitFrequency($this);
     }
     
     

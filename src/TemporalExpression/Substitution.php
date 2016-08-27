@@ -14,12 +14,12 @@ class Substitution extends TemporalExpression
     /**
      * @var TemporalExpression
      */
-    private $excluded;
+    private $included;
     
     /**
      * @var TemporalExpression
      */
-    private $included;
+    private $excluded;
     
     /**
      * @var TemporalExpression
@@ -33,16 +33,40 @@ class Substitution extends TemporalExpression
      * @param TemporalExpression $substitute
      */
     public function __construct(
-        TemporalExpression $excluded,
         TemporalExpression $included,
+        TemporalExpression $excluded,
         TemporalExpression $substitute
     ) {
-        parent::__construct();
-        
-        $this->excluded   = $excluded;
         $this->included   = $included;
+        $this->excluded   = $excluded;
         $this->substitute = $substitute;
         $this->sequence   = $included->sequence;
+        
+        parent::__construct();
+    }
+    
+    
+    /**
+     * @inheritdoc
+     */
+    public function __toString() : string
+    {
+        return sprintf(
+            '%s: excluded = %s, included = %s, substitute = %s',
+            parent::__toString(),
+            $this->excluded,
+            $this->included,
+            $this->substitute
+        );
+    }
+    
+    
+    /**
+     * @inheritdoc
+     */
+    public function accept(TemporalExpressionVisitor $visitor)
+    {
+        $visitor->visitSubstitution($this);
     }
     
     

@@ -31,6 +31,29 @@ abstract class TemporalExpression
     
     
     /**
+     * @inheritdoc
+     */
+    public function __toString() : string
+    {
+        $class = get_class($this);
+        
+        if ($pos = strrpos($class, '\\')) {
+            $class = substr($class, $pos + 1);
+        }
+        
+        return $class;
+    }
+    
+    
+    /**
+     * @param TemporalExpressionVisitor $visitor
+     *
+     * @return void
+     */
+    abstract public function accept(TemporalExpressionVisitor $visitor);
+    
+    
+    /**
      * Determines if this expression is a candidate for substitution.
      *
      * This is true when this expression could have produced the specified date based on another expression.

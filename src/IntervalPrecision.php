@@ -51,6 +51,34 @@ final class IntervalPrecision
     
     
     /**
+     * @return string
+     */
+    public function __toString() : string
+    {
+        switch ($this->value) {
+            case self::SECONDS:
+                return 'seconds';
+            case self::MINUTES:
+                return 'minutes';
+            case self::HOURS:
+                return 'hours';
+            case self::DAYS:
+                return 'days';
+            case self::WEEKS:
+                return 'weeks';
+            case self::MONTHS:
+                return 'months';
+            case self::QUARTERS:
+                return 'quarters';
+            case self::YEARS:
+                return 'years';
+        }
+        
+        throw new \UnexpectedValueException("Unhandled interval precision: {$this->value}.");
+    }
+    
+    
+    /**
      * @param self $other
      *
      * @return bool

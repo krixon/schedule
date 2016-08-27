@@ -4,7 +4,7 @@ namespace Krixon\Schedule\TemporalExpression;
 
 use IntlCalendar as Calendar;
 use Krixon\DateTime\DateTime;
-use Krixon\Schedule\Days;
+use Krixon\Schedule\Day;
 
 /**
  * An occurrence of a certain day in a month.
@@ -17,24 +17,21 @@ class DayInMonth extends TemporalExpression
     private $dayOfWeek;
     private $occurrence;
     
-    protected $sequence = 460;
-    
     
     /**
-     * @param int $dayOfWeek  The day of the week, 1 == Monday.
+     * @param Day $dayOfWeek  The day of the week.
      * @param int $occurrence The occurrence within the month. Can be negative, -1 == last occurrence etc. Valid range
      *                        is -5 to 5, excluding zero.
      */
-    public function __construct(int $dayOfWeek, int $occurrence = 0)
+    public function __construct(Day $dayOfWeek, int $occurrence = 0)
     {
-        Days::assertContains($dayOfWeek);
-        
         if ($occurrence < -5 || $occurrence === 0 || $occurrence > 5) {
             throw new \InvalidArgumentException(
                 "Invalid occurrence: $occurrence. Must be between -5 and 5, excluding 0."
             );
         }
         
+        $this->sequence   = 460;
         $this->dayOfWeek  = $dayOfWeek;
         $this->occurrence = $occurrence;
         
@@ -43,9 +40,23 @@ class DayInMonth extends TemporalExpression
     
     
     /**
-     * @return int
+     * @inheritdoc
      */
-    public function dayOfWeek() : int
+    public function __toString() : string
+    {
+        return sprintf(
+            '%s: day = %s, occurrence = %d',
+            parent::__toString(),
+            $this->dayOfWeek,
+            $this->occurrence
+        );
+    }
+    
+    
+    /**
+     * @return Day
+     */
+    public function dayOfWeek() : Day
     {
         return $this->dayOfWeek;
     }
@@ -63,11 +74,20 @@ class DayInMonth extends TemporalExpression
     /**
      * @inheritdoc
      */
+    public function accept(TemporalExpressionVisitor $visitor)
+    {
+        $visitor->visitDayInMonth($this);
+    }
+    
+    
+    /**
+     * @inheritdoc
+     */
     public function equals(TemporalExpression $other) : bool
     {
         return $this === $other || (
             $other instanceof static &&
-            $this->dayOfWeek === $other->dayOfWeek &&
+            $this->dayOfWeek->equals($other->dayOfWeek) &&
             $this->occurrence === $other->occurrence
         );
     }
@@ -107,7 +127,7 @@ class DayInMonth extends TemporalExpression
      */
     public function includes(DateTime $date) : bool
     {
-        if ($this->dayOfWeek !== $date->dayOfWeekIso()) {
+        if (!$this->dayOfWeek->is($date->dayOfWeekIso())) {
             return false;
         }
         
@@ -184,7 +204,7 @@ class DayInMonth extends TemporalExpression
             // Positive occurrence, move forward in the current month to find the correct date.
             
             // Step forwards until the correct day of week is reached.
-            while ($calendar->get(Calendar::FIELD_DOW_LOCAL) !== $this->dayOfWeek) {
+            while (!$this->dayOfWeek->is($calendar->get(Calendar::FIELD_DOW_LOCAL))) {
                 $calendar->add(Calendar::FIELD_DAY_OF_MONTH, 1);
             }
             
@@ -196,7 +216,7 @@ class DayInMonth extends TemporalExpression
             $calendar->add(Calendar::FIELD_DAY_OF_MONTH, -1);
             
             // Step backwards until the correct day of week is reached.
-            while ($calendar->get(Calendar::FIELD_DOW_LOCAL) !== $this->dayOfWeek) {
+            while (!$this->dayOfWeek->is($calendar->get(Calendar::FIELD_DOW_LOCAL))) {
                 $calendar->add(Calendar::FIELD_DAY_OF_MONTH, -1);
             }
             

@@ -1,6 +1,6 @@
 <?php
 
-namespace Krixon\Schedule\Test;
+namespace Krixon\Schedule\Test\TemporalExpression;
 
 use Krixon\DateTime\DateTime;
 use Krixon\Schedule\Days;

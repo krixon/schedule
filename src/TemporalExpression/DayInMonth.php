@@ -27,8 +27,6 @@ class DayInMonth extends TemporalExpression
      */
     public function __construct(int $dayOfWeek, int $occurrence = 0)
     {
-        parent::__construct();
-        
         Days::assertContains($dayOfWeek);
         
         if ($occurrence < -5 || $occurrence === 0 || $occurrence > 5) {
@@ -39,6 +37,8 @@ class DayInMonth extends TemporalExpression
         
         $this->dayOfWeek  = $dayOfWeek;
         $this->occurrence = $occurrence;
+        
+        parent::__construct();
     }
     
     

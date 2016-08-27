@@ -9,7 +9,6 @@ use Krixon\Schedule\TemporalExpression\DayInMonth;
 use Krixon\Schedule\TemporalExpression\Frequency;
 use Krixon\Schedule\TemporalExpression\Substitution;
 use Krixon\Schedule\TemporalExpression\TemporalExpression;
-use Krixon\Schedule\TemporalExpression\TemporalExpressionPrinter;
 use Krixon\Schedule\Test\TemporalExpression\TemporalExpressionTestCase;
 
 /**

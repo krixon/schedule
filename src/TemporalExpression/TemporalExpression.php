@@ -10,8 +10,12 @@ abstract class TemporalExpression
     /**
      * Expressions are sorted using this value.
      *
-     * Expression evaluation depends on correct ordering. Evaluation starts from the lowest value and progresses
-     * to the highest.
+     * Expression evaluation depends on correct ordering. Evaluation starts from the smallest unit of time to
+     * largest. When unit of time is the same, they are evaluated from least ambiguous to most.
+     *
+     * For example a 'date range' expression should always be evaluated last since it is the most ambiguous possible
+     * expression - all other expressions would be evaluated and finally a check would be made that the result falls
+     * within the date range.
      *
      * @var int
      */

@@ -3,7 +3,6 @@
 namespace Krixon\Schedule\Test\TemporalExpression;
 
 use Krixon\DateTime\DateTime;
-use Krixon\Schedule\Day;
 use Krixon\Schedule\TemporalExpression\DayInMonth;
 
 /**
@@ -15,31 +14,35 @@ class DayInMonthTest extends TemporalExpressionTestCase
 {
     /**
      * @dataProvider includedDateProvider
-     * @covers ::includesDate
+     * @covers ::includes
      *
-     * @param Day    $day
+     * @param int    $dayOfWeek
      * @param int    $occurrence
      * @param string $date
      * @param bool   $expected
      */
-    public function testIncludesDate(Day $day, int $occurrence, string $date, bool $expected)
+    public function testIncludesDate(int $dayOfWeek, int $occurrence, string $date, bool $expected)
     {
         $date       = DateTime::fromFormat('Y-m-d', $date, new \DateTimeZone('Europe/London'));
-        $expression = new DayInMonth($day, $occurrence);
+        $expression = new DayInMonth($dayOfWeek, $occurrence);
         
-        $this->assertSame($expected, $expression->includes($date));
+        $this->assertSame(
+            $expected,
+            $expression->includes($date),
+            "Failed asserting that $expression includes date $date is " . ($expected ? 'true.' : 'false.')
+        );
     }
     
     
     public function includedDateProvider() : array
     {
         return [
-            [Day::mon(), 1, '2015-01-05', true],
-            [Day::wed(), -1, '2015-07-29', true],
-            [Day::wed(), -2, '2015-07-22', true],
-            [Day::wed(), -3, '2015-07-15', true],
-            [Day::mon(), 1, '2015-01-06', false],
-            [Day::wed(), -1, '2015-07-30', false],
+            [DateTime::MON, 1, '2015-01-05', true],
+            [DateTime::WED, -1, '2015-07-29', true],
+            [DateTime::WED, -2, '2015-07-22', true],
+            [DateTime::WED, -3, '2015-07-15', true],
+            [DateTime::MON, 1, '2015-01-06', false],
+            [DateTime::WED, -1, '2015-07-30', false],
         ];
     }
     
@@ -48,17 +51,17 @@ class DayInMonthTest extends TemporalExpressionTestCase
      * @dataProvider firstOccurrenceAfterProvider
      * @covers ::firstOccurrenceAfter
      *
-     * @param Day    $day
+     * @param int    $dayOfWeek
      * @param int    $occurrence
      * @param string $date
      * @param string $expected
      */
-    public function testFirstOccurrenceAfter(Day $day, int $occurrence, string $date, string $expected)
+    public function testFirstOccurrenceAfter(int $dayOfWeek, int $occurrence, string $date, string $expected)
     {
         $timezone   = new \DateTimeZone('Europe/London');
         $date       = DateTime::fromFormat('Y-m-d', $date, $timezone);
         $expected   = DateTime::fromFormat('Y-m-d', $expected, $timezone)->withTimeAtMidnight();
-        $expression = new DayInMonth($day, $occurrence);
+        $expression = new DayInMonth($dayOfWeek, $occurrence);
     
         $this->assertTrue($expected->equals($expression->firstOccurrenceOnOrAfter($date)));
     }
@@ -67,19 +70,19 @@ class DayInMonthTest extends TemporalExpressionTestCase
     public function firstOccurrenceAfterProvider() : array
     {
         return [
-            '1st mon() after 2015-01-01 is 2015-01-05' => [Day::mon(), 1, '2015-01-01', '2015-01-05'],
-            '2nd mon() after 2015-01-01 is 2015-01-12' => [Day::mon(), 2, '2015-01-01', '2015-01-12'],
-            '3rd mon() after 2015-01-01 is 2015-01-19' => [Day::mon(), 3, '2015-01-01', '2015-01-19'],
-            '4th mon() after 2015-01-01 is 2015-01-26' => [Day::mon(), 4, '2015-01-01', '2015-01-26'],
-            '1st fri() after 2015-01-02 is 2015-01-02' => [Day::fri(), 1, '2015-01-02', '2015-01-02'],
-            [Day::wed(), -1, '2015-07-01', '2015-07-29'],
-            [Day::wed(), -2, '2015-07-01', '2015-07-22'],
-            [Day::wed(), -3, '2015-07-01', '2015-07-15'],
-            [Day::wed(), -4, '2015-07-01', '2015-07-08'],
-            [Day::wed(), -1, '2015-07-05', '2015-07-29'],
-            [Day::wed(), -1, '2015-07-28', '2015-07-29'],
-            [Day::wed(), -1, '2015-07-29', '2015-07-29'],
-            [Day::wed(), -1, '2015-07-30', '2015-08-26'],
+            '1st mon() after 2015-01-01 is 2015-01-05' => [DateTime::MON, 1, '2015-01-01', '2015-01-05'],
+            '2nd mon() after 2015-01-01 is 2015-01-12' => [DateTime::MON, 2, '2015-01-01', '2015-01-12'],
+            '3rd mon() after 2015-01-01 is 2015-01-19' => [DateTime::MON, 3, '2015-01-01', '2015-01-19'],
+            '4th mon() after 2015-01-01 is 2015-01-26' => [DateTime::MON, 4, '2015-01-01', '2015-01-26'],
+            '1st fri() after 2015-01-02 is 2015-01-02' => [DateTime::FRI, 1, '2015-01-02', '2015-01-02'],
+            [DateTime::WED, -1, '2015-07-01', '2015-07-29'],
+            [DateTime::WED, -2, '2015-07-01', '2015-07-22'],
+            [DateTime::WED, -3, '2015-07-01', '2015-07-15'],
+            [DateTime::WED, -4, '2015-07-01', '2015-07-08'],
+            [DateTime::WED, -1, '2015-07-05', '2015-07-29'],
+            [DateTime::WED, -1, '2015-07-28', '2015-07-29'],
+            [DateTime::WED, -1, '2015-07-29', '2015-07-29'],
+            [DateTime::WED, -1, '2015-07-30', '2015-08-26'],
         ];
     }
     
@@ -88,14 +91,14 @@ class DayInMonthTest extends TemporalExpressionTestCase
      * @dataProvider occurrencesOnOrAfterProvider
      * @covers ::occurrencesOnOrAfter
      *
-     * @param Day    $day
+     * @param int    $dayOfWeek
      * @param int    $occurrence
      * @param string $startDate
      * @param array  $expected
      */
-    public function testOccurrencesOnOrAfter(Day $day, int $occurrence, string $startDate, array $expected)
+    public function testOccurrencesOnOrAfter(int $dayOfWeek, int $occurrence, string $startDate, array $expected)
     {
-        $expression = new DayInMonth($day, $occurrence);
+        $expression = new DayInMonth($dayOfWeek, $occurrence);
         
         self::assertOccurrencesOnOrAfterStartDateGenerateCorrectly($expected, $expression, $startDate);
     }
@@ -105,7 +108,7 @@ class DayInMonthTest extends TemporalExpressionTestCase
     {
         return [
             [
-                Day::mon(),
+                DateTime::MON,
                 1,
                 '2015-01-01',
                 [

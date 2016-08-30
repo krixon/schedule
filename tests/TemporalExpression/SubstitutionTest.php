@@ -3,7 +3,6 @@
 namespace Krixon\Schedule\Test;
 
 use Krixon\DateTime\DateTime;
-use Krixon\Schedule\Day;
 use Krixon\Schedule\IntervalPrecision;
 use Krixon\Schedule\TemporalExpression\DayInMonth;
 use Krixon\Schedule\TemporalExpression\Frequency;
@@ -45,8 +44,8 @@ class SubstitutionTest extends TemporalExpressionTestCase
             'Every day unless the first Monday of the month then last Monday of the month' => [
                 '2015-01-01 00:00:00',
                 new Frequency(DateTime::create('2015-01-01 00:00:00'), 1, IntervalPrecision::days()),
-                new DayInMonth(Day::mon(), 1),
-                new DayInMonth(Day::mon(), -1),
+                new DayInMonth(DateTime::MON, 1),
+                new DayInMonth(DateTime::MON, -1),
                 [
                     '2015-01-01 00:00:00',
                     '2015-01-02 00:00:00',

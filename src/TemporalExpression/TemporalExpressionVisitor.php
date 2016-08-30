@@ -26,4 +26,20 @@ interface TemporalExpressionVisitor
      * @return void
      */
     public function visitSubstitution(Substitution $expression);
+    
+    
+    /**
+     * @param DateRange $expression
+     *
+     * @return void
+     */
+    public function visitDateRange(DateRange $expression);
+    
+    
+    /**
+     * @param MonthRange $expression
+     *
+     * @return void
+     */
+    public function visitMonthRange(MonthRange $expression);
 }

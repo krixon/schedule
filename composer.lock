@@ -13,7 +13,7 @@
             "source": {
                 "type": "git",
                 "url": "git@bitbucket.org:krixon/datetime.git",
-                "reference": "c23a7a31c54b58b8f5d8231c1e26894d655a59ee"
+                "reference": "7a9b15bef9f86a96b2856a4877574fd2cfc687f6"
             },
             "require": {
                 "php-64bit": ">=7"
@@ -29,7 +29,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Krixon\\DateTime\\Test\\": "test"
+                    "Krixon\\DateTime\\Test\\": "tests"
                 }
             },
             "license": [
@@ -40,7 +40,7 @@
                 "issues": "https://bitbucket.org/krixon/datetime/issues",
                 "wiki": "https://bitbucket.org/krixon/datetime/wiki"
             },
-            "time": "2016-08-27 07:35:02"
+            "time": "2016-08-30 22:04:33"
         }
     ],
     "packages-dev": [

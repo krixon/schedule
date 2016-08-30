@@ -12,7 +12,6 @@ use Krixon\Schedule\TemporalExpression\TemporalExpression;
  */
 class TemporalExpressionTestCase extends \PHPUnit_Framework_TestCase
 {
-    
     /**
      * @param string[]           $expected   An array of date strings in a format accepted by DateTime::create().
      * @param TemporalExpression $expression The expression to test.
@@ -46,5 +45,22 @@ class TemporalExpressionTestCase extends \PHPUnit_Framework_TestCase
             
             self::assertTrue($result, $message);
         }
+    }
+    
+    
+    /**
+     * @param bool               $expected
+     * @param TemporalExpression $expression
+     * @param string             $date
+     */
+    protected static function assertIncludesDate(bool $expected, TemporalExpression $expression, string $date)
+    {
+        $date = DateTime::create($date);
+        
+        self::assertSame(
+            $expected,
+            $expression->includes($date),
+            "Failed asserting that $expression includes date $date is " . ($expected ? 'true.' : 'false.')
+        );
     }
 }

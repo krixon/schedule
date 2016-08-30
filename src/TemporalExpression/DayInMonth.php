@@ -2,15 +2,13 @@
 
 namespace Krixon\Schedule\TemporalExpression;
 
-use IntlCalendar as Calendar;
 use Krixon\DateTime\DateTime;
-use Krixon\Schedule\Day;
 
 /**
  * An occurrence of a certain day in a month.
  *
- * Second Tuesday of the month: new DayInMonth(Days::TUE, 2)
- * Last Friday of the month: new DayInMonth(DAYS::FRI, -1)
+ * Second Tuesday of the month: new DayInMonth(DateTime::TUE, 2)
+ * Last Friday of the month: new DayInMonth(DateTime::FRI, -1)
  */
 class DayInMonth extends TemporalExpression
 {
@@ -19,12 +17,14 @@ class DayInMonth extends TemporalExpression
     
     
     /**
-     * @param Day $dayOfWeek  The day of the week.
+     * @param int $dayOfWeek  The day of the week. 1 is Monday.
      * @param int $occurrence The occurrence within the month. Can be negative, -1 == last occurrence etc. Valid range
      *                        is -5 to 5, excluding zero.
      */
-    public function __construct(Day $dayOfWeek, int $occurrence = 0)
+    public function __construct(int $dayOfWeek, int $occurrence = 0)
     {
+//        DateTime::assertValidDayOfWeek($dayOfWeek);
+        
         if ($occurrence < -5 || $occurrence === 0 || $occurrence > 5) {
             throw new \InvalidArgumentException(
                 "Invalid occurrence: $occurrence. Must be between -5 and 5, excluding 0."
@@ -54,9 +54,9 @@ class DayInMonth extends TemporalExpression
     
     
     /**
-     * @return Day
+     * @return int
      */
-    public function dayOfWeek() : Day
+    public function dayOfWeek() : int
     {
         return $this->dayOfWeek;
     }
@@ -87,7 +87,7 @@ class DayInMonth extends TemporalExpression
     {
         return $this === $other || (
             $other instanceof static &&
-            $this->dayOfWeek->equals($other->dayOfWeek) &&
+            $this->dayOfWeek === $other->dayOfWeek &&
             $this->occurrence === $other->occurrence
         );
     }
@@ -109,10 +109,9 @@ class DayInMonth extends TemporalExpression
             // The first occurrence has already passed so that one is no good.
             // Move to the start of the next month and try again.
             
-            $first = $first->withDateAtStartOfMonth();
-            
+            // It is possible that the date has already overflowed to the next month, so check that first.
             if ($first->month() === $month) {
-                $first = $first->add('P1M');
+                $first = $first->withDateAtStartOfMonth()->add('P1M');
             }
             
             $first = $this->alignDayOfWeek($first);
@@ -127,7 +126,7 @@ class DayInMonth extends TemporalExpression
      */
     public function includes(DateTime $date) : bool
     {
-        if (!$this->dayOfWeek->is($date->dayOfWeekIso())) {
+        if ($this->dayOfWeek !== $date->dayOfWeek()) {
             return false;
         }
         
@@ -163,6 +162,7 @@ class DayInMonth extends TemporalExpression
      */
     protected function calculateFirstOccurrenceAfter(DateTime $date, ExpressionContext $context)
     {
+        $date  = $date->withTimeAtMidnight();
         $month = $date->month();
         $next  = $this->alignDayOfWeek($date);
         
@@ -170,10 +170,9 @@ class DayInMonth extends TemporalExpression
             // Next occurrence is before the start date.
             // Move to the start of the next month and try again.
             
-            $next = $next->withDateAtStartOfMonth();
-            
+            // It is possible that the date has already overflowed to the next month, so check that first.
             if ($next->month() === $month) {
-                $next = $next->add('P1M');
+                $next = $next->withDateAtStartOfMonth()->add('P1M');
             }
             
             $next = $this->alignDayOfWeek($next);
@@ -194,36 +193,39 @@ class DayInMonth extends TemporalExpression
      */
     protected function alignDayOfWeek(DateTime $date)
     {
-        // Note that IntlCalendar uses 1 for Sunday but we use ISO8601 weekdays where Monday is 1.
-        // To make the calculations simpler we use the en_GB locale and use the local day of week as this ensures
-        // that Monday is 1.
-        
-        $calendar = $date->withDateAtStartOfMonth()->toIntlCalendar('en_GB');
-        
-        if ($this->occurrence > 0) {
-            // Positive occurrence, move forward in the current month to find the correct date.
-            
-            // Step forwards until the correct day of week is reached.
-            while (!$this->dayOfWeek->is($calendar->get(Calendar::FIELD_DOW_LOCAL))) {
-                $calendar->add(Calendar::FIELD_DAY_OF_MONTH, 1);
-            }
-            
-            $calendar->add(Calendar::FIELD_DAY_OF_MONTH, ($this->occurrence - 1) * 7);
-        } else {
-            // Negative occurrence, move backwards from the end of the current month to find the correct date.
-            
-            $calendar->add(Calendar::FIELD_MONTH, 1);
-            $calendar->add(Calendar::FIELD_DAY_OF_MONTH, -1);
-            
-            // Step backwards until the correct day of week is reached.
-            while (!$this->dayOfWeek->is($calendar->get(Calendar::FIELD_DOW_LOCAL))) {
-                $calendar->add(Calendar::FIELD_DAY_OF_MONTH, -1);
-            }
-            
-            $calendar->add(Calendar::FIELD_DAY_OF_MONTH, ($this->occurrence + 1) * 7);
-        }
-        
-        return DateTime::fromIntlCalendar($calendar);
+        return $date->withDateAtDayOfWeekInMonth($this->dayOfWeek, $this->occurrence);
+//
+//
+//        // Note that IntlCalendar uses 1 for Sunday but we use ISO8601 weekdays where Monday is 1.
+//        // To make the calculations simpler we use the en_GB locale and use the local day of week as this ensures
+//        // that Monday is 1.
+//
+//        $calendar = $date->withDateAtStartOfMonth()->toIntlCalendar('en_GB');
+//
+//        if ($this->occurrence > 0) {
+//            // Positive occurrence, move forward in the current month to find the correct date.
+//
+//            // Step forwards until the correct day of week is reached.
+//            while (!$this->dayOfWeek->is($calendar->get(Calendar::FIELD_DOW_LOCAL))) {
+//                $calendar->add(Calendar::FIELD_DAY_OF_MONTH, 1);
+//            }
+//
+//            $calendar->add(Calendar::FIELD_DAY_OF_MONTH, ($this->occurrence - 1) * 7);
+//        } else {
+//            // Negative occurrence, move backwards from the end of the current month to find the correct date.
+//
+//            $calendar->add(Calendar::FIELD_MONTH, 1);
+//            $calendar->add(Calendar::FIELD_DAY_OF_MONTH, -1);
+//
+//            // Step backwards until the correct day of week is reached.
+//            while (!$this->dayOfWeek->is($calendar->get(Calendar::FIELD_DOW_LOCAL))) {
+//                $calendar->add(Calendar::FIELD_DAY_OF_MONTH, -1);
+//            }
+//
+//            $calendar->add(Calendar::FIELD_DAY_OF_MONTH, ($this->occurrence + 1) * 7);
+//        }
+//
+//        return DateTime::fromIntlCalendar($calendar);
     }
     
 }

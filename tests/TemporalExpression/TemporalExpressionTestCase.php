@@ -22,8 +22,9 @@ class TemporalExpressionTestCase extends \PHPUnit_Framework_TestCase
         TemporalExpression $expression,
         string $startDate
     ) {
-        $startDate = DateTime::create($startDate);
-        $limit     = count($expected);
+        $startDate      = DateTime::create($startDate);
+        $limit          = count($expected);
+        $numOccurrences = 0;
         
         /** @var DateTime $occurrence */
         foreach ($expression->occurrencesOnOrAfter($startDate) as $i => $occurrence) {
@@ -31,19 +32,48 @@ class TemporalExpressionTestCase extends \PHPUnit_Framework_TestCase
                 break;
             }
             
+            ++$numOccurrences;
+            
             $expectedDate = DateTime::create($expected[$i]);
             
             $message = sprintf(
                 'Failed asserting that %s is expected occurrence %s (%d of %d).',
-                $occurrence->format('c'),
-                $expectedDate->format('c'),
-                $i + 1,
+                $occurrence,
+                $expectedDate,
+                $numOccurrences,
                 $limit
             );
             
             $result = $occurrence->equals($expectedDate);
             
             self::assertTrue($result, $message);
+        }
+        
+        self::assertSame(
+            $numOccurrences,
+            $limit,
+            "Failed asserting that $numOccurrences matches expected $limit occurrences on or after $startDate."
+        );
+    }
+    
+    
+    /**
+     * @param string|null        $expected
+     * @param TemporalExpression $expression
+     * @param string             $startDate
+     */
+    protected static function assertFirstOccurrenceAfterEquals(
+        $expected,
+        TemporalExpression $expression,
+        string $startDate
+    ) {
+        $startDate  = DateTime::create($startDate);
+        $occurrence = $expression->firstOccurrenceOnOrAfter($startDate);
+        
+        if ($expected) {
+            self::assertTrue(DateTime::create($expected)->equals($occurrence));
+        } else {
+            self::assertNull($occurrence);
         }
     }
     

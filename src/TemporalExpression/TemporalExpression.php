@@ -167,6 +167,12 @@ abstract class TemporalExpression
     }
     
     
+    /**
+     * @param DateTime          $date
+     * @param ExpressionContext $context
+     *
+     * @return DateTime|null
+     */
     abstract protected function calculateFirstOccurrenceAfter(DateTime $date, ExpressionContext $context);
     
     

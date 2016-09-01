@@ -42,4 +42,20 @@ interface TemporalExpressionVisitor
      * @return void
      */
     public function visitMonthRange(MonthRange $expression);
+    
+    
+    /**
+     * @param Before $expression
+     *
+     * @return void
+     */
+    public function visitBefore(Before $expression);
+    
+    
+    /**
+     * @param After $expression
+     *
+     * @return void
+     */
+    public function visitAfter(After $expression);
 }

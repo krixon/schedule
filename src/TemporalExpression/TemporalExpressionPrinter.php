@@ -118,6 +118,30 @@ class TemporalExpressionPrinter implements TemporalExpressionVisitor
     }
     
     
+    public function visitDateRange(DateRange $expression)
+    {
+        $this->appendExpression($expression);
+    }
+    
+    
+    public function visitMonthRange(MonthRange $expression)
+    {
+        $this->appendExpression($expression);
+    }
+    
+    
+    public function visitBefore(Before $expression)
+    {
+        $this->appendExpression($expression);
+    }
+    
+    
+    public function visitAfter(After $expression)
+    {
+        $this->appendExpression($expression);
+    }
+    
+    
     private function indent()
     {
         $this->currentIndent += $this->indentSize;
